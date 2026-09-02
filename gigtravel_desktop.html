@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>gigTravel — направления</title>
+  <meta name="description" content="Одностраничный сайт туров с автоматическим слайдером.">
+  <style>
+    :root{
+      --green:#102e23;
+      --green-2:#173d30;
+      --cream:#f4f1eb;
+      --cream-2:#ebe6dc;
+      --gold:#ba7a33;
+      --gold-dark:#a36828;
+      --text:#1f2822;
+      --muted:#7d837f;
+      --white:#fff;
+      --radius:6px;
+      --shadow:0 9px 24px rgba(24,35,29,.08);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      color:var(--text);
+      background:var(--cream);
+    }
+    a{text-decoration:none;color:inherit}
+    button{font:inherit}
+    .topbar{
+      height:60px;
+      background:var(--green);
+      color:#fff;
+      display:flex;
+      align-items:center;
+    }
+    .nav{
+      width:min(1100px, calc(100% - 48px));
+      margin:auto;
+      display:flex;
+      align-items:center;
+      gap:28px;
+    }
+    .logo{
+      font-size:17px;
+      font-weight:800;
+      letter-spacing:-.4px;
+      margin-right:4px;
+    }
+    .logo span{color:#fff}
+    .navlinks{
+      display:flex;
+      align-items:center;
+      gap:24px;
+      flex:1;
+      font-size:10px;
+      color:#f0c992;
+    }
+    .navitem{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      white-space:nowrap;
+    }
+    .navitem small{
+      color:#90a79d;
+      font-size:8px;
+    }
+    .navright{
+      display:flex;
+      gap:18px;
+      color:#fff;
+      font-size:10px;
+      white-space:nowrap;
+    }
+
+    main{
+      width:min(1100px, calc(100% - 48px));
+      margin:0 auto;
+      padding:38px 0 34px;
+    }
+    .heading{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:20px;
+      margin-bottom:20px;
+    }
+    .heading h1{
+      margin:0 0 6px;
+      font-size:18px;
+      line-height:1.1;
+    }
+    .heading p{
+      margin:0;
+      font-size:9px;
+      color:#a07e57;
+    }
+    .btn{
+      border:0;
+      background:var(--gold);
+      color:#fff;
+      padding:10px 20px;
+      border-radius:4px;
+      font-size:10px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+    .btn:hover{background:var(--gold-dark);transform:translateY(-1px)}
+
+    .slider-wrap{
+      position:relative;
+      width:min(980px, 100%);
+      margin:0 auto;
+    }
+    .viewport{
+      overflow:hidden;
+      border-radius:5px;
+      background:#ddd;
+      box-shadow:var(--shadow);
+    }
+    .track{
+      display:flex;
+      transition:transform .55s cubic-bezier(.22,.61,.36,1);
+      will-change:transform;
+    }
+    .slide{
+      min-width:100%;
+      background:var(--cream-2);
+    }
+    .slide img{
+      display:block;
+      width:100%;
+      height:320px;
+      object-fit:cover;
+    }
+    .slide-info{
+      display:grid;
+      grid-template-columns:1fr auto;
+      align-items:center;
+      gap:20px;
+      padding:13px 12px 15px;
+      min-height:70px;
+    }
+    .slide-title{
+      font-size:11px;
+      font-weight:700;
+      margin-bottom:5px;
+    }
+    .slide-place{
+      font-size:9px;
+      color:#8a908c;
+    }
+    .more{
+      display:inline-block;
+      margin-top:9px;
+      font-size:8px;
+      font-weight:700;
+      color:var(--gold);
+      letter-spacing:.4px;
+    }
+    .price{
+      text-align:right;
+      font-size:9px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .price small{
+      display:block;
+      margin-top:5px;
+      font-size:8px;
+      color:#9a9e9b;
+      font-weight:400;
+    }
+    .arrow{
+      position:absolute;
+      top:145px;
+      width:24px;
+      height:24px;
+      border:0;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:#d6d3ca;
+      color:#fff;
+      cursor:pointer;
+      z-index:3;
+      font-size:16px;
+      line-height:1;
+    }
+    .arrow:hover{filter:brightness(.93)}
+    .prev{left:-18px}
+    .next{right:-18px;background:var(--green)}
+    .dots{
+      display:flex;
+      justify-content:center;
+      gap:5px;
+      margin-top:15px;
+    }
+    .dot{
+      width:7px;
+      height:5px;
+      border:0;
+      border-radius:99px;
+      padding:0;
+      background:#cfc9ba;
+      cursor:pointer;
+      transition:.25s;
+    }
+    .dot.active{width:12px;background:var(--green)}
+
+    .hero{
+      margin-top:35px;
+      min-height:260px;
+      border-radius:5px;
+      overflow:hidden;
+      position:relative;
+      background-image:
+        linear-gradient(90deg, rgba(8,30,23,.73), rgba(8,30,23,.2) 65%, rgba(8,30,23,.1)),
+        url("https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1500&q=86");
+      background-size:cover;
+      background-position:center;
+      display:flex;
+      align-items:center;
+      padding:34px 30px;
+      box-shadow:var(--shadow);
+    }
+    .hero-content{max-width:430px;color:#fff}
+    .eyebrow{
+      font-size:8px;
+      letter-spacing:2px;
+      color:#edbc7a;
+      font-weight:700;
+      margin-bottom:13px;
+    }
+    .hero h2{
+      margin:0;
+      font-size:24px;
+      line-height:1.02;
+      letter-spacing:-.6px;
+    }
+    .hero p{
+      margin:14px 0 18px;
+      max-width:380px;
+      font-size:9px;
+      line-height:1.65;
+      color:rgba(255,255,255,.86);
+    }
+
+    .stats{
+      margin:34px calc(50% - 50vw) 0;
+      width:100vw;
+      background:var(--cream-2);
+      min-height:70px;
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      align-items:center;
+      text-align:center;
+    }
+    .stat strong{
+      display:block;
+      color:var(--gold);
+      font-size:17px;
+      margin-bottom:4px;
+    }
+    .stat span{
+      font-size:8px;
+      color:#7c837e;
+    }
+
+    footer{
+      width:min(1100px, calc(100% - 48px));
+      margin:0 auto 22px;
+      display:flex;
+      justify-content:center;
+      gap:22px;
+      font-size:8px;
+      color:#8a8e8a;
+    }
+
+    @media (max-width:850px){
+      .navlinks{display:none}
+      .nav{justify-content:space-between}
+      .slide img{height:300px}
+      .hero{min-height:280px}
+    }
+    @media (max-width:620px){
+      main{width:min(100% - 28px, 1100px);padding-top:28px}
+      .nav{width:calc(100% - 28px)}
+      .navright{gap:11px}
+      .heading{align-items:flex-start}
+      .heading h1{font-size:17px}
+      .btn{padding:9px 13px}
+      .slide img{height:235px}
+      .arrow{top:105px}
+      .prev{left:-9px}.next{right:-9px}
+      .slide-info{padding:12px 10px}
+      .price{font-size:8px}
+      .hero{
+        padding:28px 22px;
+        min-height:300px;
+        background-position:62% center;
+      }
+      .hero h2{font-size:22px}
+      .stats{
+        margin-top:28px;
+        grid-template-columns:repeat(2,1fr);
+        padding:13px 0;
+        row-gap:12px;
+      }
+      footer{width:calc(100% - 28px);flex-wrap:wrap}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav">
+      <div class="logo">gig<span>Travel</span></div>
+
+      <div class="navlinks">
+        <a href="#slider" class="navitem">Малые группы<small>До 12 человек</small></a>
+        <a href="#hero" class="navitem">Авторские туры<small>Опыт 12+ лет</small></a>
+        <a href="#stats" class="navitem">Поддержка 24/7<small>Гид всегда на связи</small></a>
+        <a href="#slider" class="navitem">Честные цены<small>Без скрытых доплат</small></a>
+      </div>
+
+      <div class="navright">
+        <a href="#slider">Туры</a>
+        <a href="#hero">О нас</a>
+        <a href="#footer">Контакты</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section id="slider">
+      <div class="heading">
+        <div>
+          <h1>Направления</h1>
+          <p>Популярные туры этого сезона</p>
+        </div>
+        <button class="btn" onclick="document.getElementById('hero').scrollIntoView({behavior:'smooth'})">Забронировать</button>
+      </div>
+
+      <div class="slider-wrap">
+        <button class="arrow prev" aria-label="Предыдущий слайд">‹</button>
+
+        <div class="viewport">
+          <div class="track" id="track">
+
+            <article class="slide">
+              <img
+                src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1400&q=86"
+                alt="Снежные горы и северное небо">
+              <div class="slide-info">
+                <div>
+                  <div class="slide-title">Норвежские фьорды</div>
+                  <div class="slide-place">Норвегия</div>
+                  <a class="more" href="#hero">ПОДРОБНЕЕ →</a>
+                </div>
+                <div class="price">
+                  от 400 000 ₸
+                  <small>на 8 дней</small>
+                </div>
+              </div>
+            </article>
+
+            <article class="slide">
+              <img
+                src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=86"
+                alt="Тропический пляж и бирюзовое море">
+              <div class="slide-info">
+                <div>
+                  <div class="slide-title">Тропический отдых</div>
+                  <div class="slide-place">Таиланд</div>
+                  <a class="more" href="#hero">ПОДРОБНЕЕ →</a>
+                </div>
+                <div class="price">
+                  от 285 000 ₸
+                  <small>на 7 дней</small>
+                </div>
+              </div>
+            </article>
+
+            <article class="slide">
+              <img
+                src="https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=1400&q=86"
+                alt="Путешествие по горной дороге">
+              <div class="slide-info">
+                <div>
+                  <div class="slide-title">Горные маршруты</div>
+                  <div class="slide-place">Швейцария</div>
+                  <a class="more" href="#hero">ПОДРОБНЕЕ →</a>
+                </div>
+                <div class="price">
+                  от 360 000 ₸
+                  <small>на 9 дней</small>
+                </div>
+              </div>
+            </article>
+
+          </div>
+        </div>
+
+        <button class="arrow next" aria-label="Следующий слайд">›</button>
+
+        <div class="dots" id="dots" aria-label="Навигация по слайдам">
+          <button class="dot active" aria-label="Слайд 1"></button>
+          <button class="dot" aria-label="Слайд 2"></button>
+          <button class="dot" aria-label="Слайд 3"></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero" id="hero">
+      <div class="hero-content">
+        <div class="eyebrow">GIGTRAVEL — АВТОРСКИЕ ПУТЕШЕСТВИЯ</div>
+        <h2>Мир ждёт.<br>Начни с нами.</h2>
+        <p>Малые группы, проверенные маршруты, незабываемые впечатления.</p>
+        <button class="btn" onclick="alert('Спасибо! Менеджер свяжется с вами.')">Написать нам</button>
+      </div>
+    </section>
+
+    <section class="stats" id="stats">
+      <div class="stat"><strong>12+</strong><span>лет в туризме</span></div>
+      <div class="stat"><strong>48</strong><span>направлений</span></div>
+      <div class="stat"><strong>3 200+</strong><span>туристов</span></div>
+      <div class="stat"><strong>4.9 ★</strong><span>средняя оценка</span></div>
+    </section>
+  </main>
+
+  <footer id="footer">
+    <span>© 2026 gigTravel</span>
+    <span>Фото: Unsplash</span>
+    <span>Сайт-демо</span>
+  </footer>
+
+  <script>
+    (() => {
+      const track = document.getElementById('track');
+      const dots = [...document.querySelectorAll('.dot')];
+      const prev = document.querySelector('.prev');
+      const next = document.querySelector('.next');
+      const total = dots.length;
+      let index = 0;
+      let timer;
+
+      function render() {
+        track.style.transform = `translateX(-${index * 100}%)`;
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+      }
+
+      function goTo(i) {
+        index = (i + total) % total;
+        render();
+      }
+
+      function start() {
+        stop();
+        timer = setInterval(() => goTo(index + 1), 5000);
+      }
+
+      function stop() {
+        if (timer) clearInterval(timer);
+      }
+
+      prev.addEventListener('click', () => { goTo(index - 1); start(); });
+      next.addEventListener('click', () => { goTo(index + 1); start(); });
+      dots.forEach((dot, i) => dot.addEventListener('click', () => { goTo(i); start(); }));
+
+      const viewport = document.querySelector('.viewport');
+      viewport.addEventListener('mouseenter', stop);
+      viewport.addEventListener('mouseleave', start);
+
+      let startX = 0;
+      let currentX = 0;
+      viewport.addEventListener('touchstart', e => {
+        startX = e.changedTouches[0].clientX;
+      }, {passive:true});
+
+      viewport.addEventListener('touchend', e => {
+        currentX = e.changedTouches[0].clientX;
+        const dx = currentX - startX;
+        if (Math.abs(dx) > 45) {
+          goTo(dx < 0 ? index + 1 : index - 1);
+          start();
+        }
+      }, {passive:true});
+
+      render();
+      start();
+    })();
+  </script>
+</body>
+</html>
